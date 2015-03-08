@@ -19,17 +19,5 @@ module Blorgh
     # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
-    
-    config.middleware.use Warden::Manager do |manager|
-      manager.default_strategies :password
-
-      manager.serialize_into_session do |user|
-        user.id
-      end
-
-      manager.serialize_from_session do |id|
-        User.find(id)
-      end
-    end
   end
 end
