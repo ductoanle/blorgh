@@ -68,6 +68,7 @@ GEM
     mime-types (1.25.1)
     minitest (5.5.1)
     multi_json (1.11.0)
+    pg (0.18.1)
     polyglot (0.3.5)
     pry (0.10.1)
       coderay (~> 1.1.0)
@@ -378,6 +379,7 @@ DEPENDENCIES
   coffee-rails (~> 4.0.0)
   jquery-rails
   multitenacy!
+  pg (~> 0.18.1)
   pry
   rabl (= 0.9.3)
   rails (= 4.1.5)
