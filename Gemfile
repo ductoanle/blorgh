@@ -19,4 +19,5 @@ gem 'rabl', '0.9.3'
 gem 'warden'
 gem 'pry'
 
-gem 'subscribem', path: '../multitenacy'
+# Name of multitenacy.gemspec decide name of gem. They must match
+gem 'multitenacy', path: '../multitenacy'
