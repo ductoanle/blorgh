@@ -9,6 +9,12 @@ gem 'coffee-rails', '~> 4.0.0'
 gem 'jquery-rails'
 gem 'pg', '~> 0.18.1'
 
+group :development, :test do
+  gem 'rspec-rails', '3.0.1'
+  gem 'capybara', '2.3.0'
+  gem 'factory_girl', '4.4.0'
+end
+
 group :doc do
   gem 'sdoc', require: false
 end

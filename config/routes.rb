@@ -17,5 +17,5 @@ Blorgh::Application.routes.draw do
       resources :posts
     end
   end
-  mount Multitencay::Engine, at: '/'
+  mount Multitenacy::Engine, at: '/'
 end
