@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150311164920) do
+ActiveRecord::Schema.define(version: 20150313041257) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -30,6 +30,7 @@ ActiveRecord::Schema.define(version: 20150311164920) do
     t.datetime "updated_at"
     t.integer  "owner_id"
     t.string   "subdomain"
+    t.integer  "plan_id"
   end
 
   add_index "multitenacy_accounts", ["subdomain"], name: "index_multitenacy_accounts_on_subdomain", using: :btree

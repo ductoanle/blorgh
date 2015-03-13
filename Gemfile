@@ -8,6 +8,7 @@ gem 'uglifier', '>= 1.3.0'
 gem 'coffee-rails', '~> 4.0.0'
 gem 'jquery-rails'
 gem 'pg', '~> 0.18.1'
+gem 'fake_braintree_redirect', github: 'radar/fake_braintree_redirect'
 
 group :development, :test do
   gem 'rspec-rails', '3.0.1'

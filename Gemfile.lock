@@ -1,3 +1,11 @@
+GIT
+  remote: git://github.com/radar/fake_braintree_redirect.git
+  revision: 10e024564282d44f46148a7af4d451668a5bebf0
+  specs:
+    fake_braintree_redirect (1.0.0)
+      braintree (~> 2.40.0)
+      rack
+
 PATH
   remote: ../multitenacy
   specs:
@@ -173,6 +181,7 @@ DEPENDENCIES
   capybara (= 2.3.0)
   coffee-rails (~> 4.0.0)
   factory_girl (= 4.4.0)
+  fake_braintree_redirect!
   jquery-rails
   multitenacy!
   pg (~> 0.18.1)
