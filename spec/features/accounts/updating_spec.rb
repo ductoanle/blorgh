@@ -60,7 +60,10 @@ feature 'Accounts' do
           hash: '<hash>'
       )
       mock_transparent_redirect_response = double(success?: true)
+      allow(mock_transparent_redirect_response).to receive_message_chain(:customer, :credit_cards).and_return [double(token: 'abcdef')]
       expect(Braintree::TransparentRedirect).to receive(:confirm).and_return mock_transparent_redirect_response
+      subscription_params = {payment_method_token: 'abcdef', plan_id: extreme_plan.braintree_id}
+      expect(Braintree::Subscription).to receive(:create).with(subscription_params).and_return double(success?: true)
       visit root_url
       click_link 'Edit Account'
       select 'Extreme', from: 'Plan'
