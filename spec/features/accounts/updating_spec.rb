@@ -7,6 +7,13 @@ feature 'Accounts' do
   include Multitenacy::TestingSupport::AuthenticationHelpers
   let(:account){ FactoryGirl.create(:account) }
   let(:root_url) { "http://#{account.subdomain}.example.com/"}
+  let(:query_string){ Rack::Utils.build_query(
+      plan_id: extreme_plan.id,
+      http_status: 200,
+      id: 'a_fake_id',
+      kind: 'create_customer',
+      hash: '<hash>'
+  )}
 
   context 'as the account owner' do
     before do
@@ -52,18 +59,12 @@ feature 'Accounts' do
       sign_in_as(user: account.owner, account: account)
     end
     scenario "updating an account's plan" do
-      query_string = Rack::Utils.build_query(
-          plan_id: extreme_plan.id,
-          http_status: 200,
-          id: 'a_fake_id',
-          kind: 'create_customer',
-          hash: '<hash>'
-      )
       mock_transparent_redirect_response = double(success?: true)
       allow(mock_transparent_redirect_response).to receive_message_chain(:customer, :credit_cards).and_return [double(token: 'abcdef')]
       expect(Braintree::TransparentRedirect).to receive(:confirm).and_return mock_transparent_redirect_response
       subscription_params = {payment_method_token: 'abcdef', plan_id: extreme_plan.braintree_id}
-      expect(Braintree::Subscription).to receive(:create).with(subscription_params).and_return double(success?: true)
+      subscription_result = double(success?: true, subscription: double(id: 'abc123'))
+      expect(Braintree::Subscription).to receive(:create).with(subscription_params).and_return subscription_result
       visit root_url
       click_link 'Edit Account'
       select 'Extreme', from: 'Plan'
@@ -81,6 +82,44 @@ feature 'Accounts' do
       click_button 'Change plan'
       expect(page).to have_content("You have switched to 'Extreme' plan.")
       expect(page.current_url).to eq root_url
+      expect(account.reload.braintree_subscription_id).to eq 'abc123'
+    end
+
+    scenario "cannot change account's plan with invalid card number" do
+      message = 'Credit card number must be 12-19 digits'
+      expect(Braintree::TransparentRedirect).to receive(:confirm).and_return(double(success?: false, message: message))
+      visit root_url
+      click_link 'Edit Account'
+      select 'Extreme', from: 'Plan'
+      click_button 'Update Account'
+      expect(page).to have_content("Account updated successfully.")
+      plan_url = multitenacy.plan_account_url(plan_id: extreme_plan.id, subdomain: account.subdomain)
+      expect(page.current_url).to eq plan_url
+      expect(page).to have_content "You are changing to 'Extreme' plan"
+      expect(page).to have_content "This plan costs 19.99 per month"
+      fill_in 'Credit card number', with: '1'
+      fill_in 'Name on card', with: 'Dummy user'
+      future_date = "#{Time.now.month + 1}/#{Time.now.year + 1}"
+      fill_in 'Expiration date', with: future_date
+      fill_in 'CVV', with: '123'
+      click_button 'Change plan'
+      expect(page).to have_content('Invalid credit card details. Please try again.')
+      expect(page).to have_content(message)
+    end
+
+    scenario 'changing plan after initial subscription' do
+      account.update_column(:braintree_subscription_id, 'abc123')
+      expect(Braintree::Subscription).to receive(:update).with(account.braintree_subscription_id, plan_id: extreme_plan.braintree_id).and_return(double(success?: true))
+      visit root_url
+      click_link 'Edit Account'
+      select 'Extreme', from: 'Plan'
+      click_button 'Update Account'
+      expect(page).to have_content "You are changing to 'Extreme' plan"
+      expect(page).to have_content "This plan costs 19.99 per month"
+      click_button 'Change plan'
+      expect(page).to have_content("You have switched to the 'Extreme' plan")
+      expect(page.current_url).to eq root_url
+      expect(account.reload.plan).to eq extreme_plan
     end
   end
 end
